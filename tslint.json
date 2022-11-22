@@ -79,6 +79,7 @@
     "no-var-requires": false,
     "prefer-const": false,
     "jsdoc-format": true,
+    "max-classes-per-file": false,
     "max-line-length": [
       true,
       150
