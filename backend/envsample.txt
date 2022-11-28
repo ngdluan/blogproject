@@ -1,1 +1,3 @@
 DATABASE_URL="postgresql://postgres:postgres@localhost:3666/mydb?schema=public"
+SECRETKEY=mycustomuselongsecret
+EXPIRESIN="60 days"

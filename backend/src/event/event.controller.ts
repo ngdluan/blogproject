@@ -12,21 +12,25 @@ import {
 import { EventService } from './event.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { ApiHeader, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { eventFindAllSuccess, eventFindOneSuccess } from './response-example';
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  eventFindAllSuccess,
+  eventFindOneFail,
+  eventFindOneSuccess,
+} from './response-example';
 
-@Controller('event')
+@Controller('api/event')
 @ApiTags('Event Router')
 export class EventController {
-  constructor(private readonly eventService: EventService) { }
+  constructor(private readonly eventService: EventService) {}
 
   @Post()
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'created',
     schema: {
-      example: eventFindOneSuccess
-    }
+      example: eventFindOneSuccess,
+    },
   })
   create(@Body() createEventDto: CreateEventDto) {
     return this.eventService.create(createEventDto);
@@ -34,35 +38,35 @@ export class EventController {
 
   @Get()
   @ApiQuery({
-    name: "search",
+    name: 'search',
     type: String,
-    description: "search. Optional",
-    required: false
+    description: 'search. Optional',
+    required: false,
   })
   @ApiQuery({
-    name: "skip",
+    name: 'skip',
     type: String,
-    description: "how many records skip. Optional",
-    required: false
+    description: 'how many records skip. Optional',
+    required: false,
   })
   @ApiQuery({
-    name: "take",
+    name: 'take',
     type: String,
-    description: "take how many records. Optional",
-    required: false
+    description: 'take how many records. Optional',
+    required: false,
   })
   @ApiQuery({
-    name: "order-by",
+    name: 'order-by',
     type: String,
-    description: "order by ex {name: 1, where: 1}. Optional",
-    required: false
+    description: 'order by ex {name: 1, where: 1}. Optional',
+    required: false,
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Get many result',
     schema: {
-      example: eventFindAllSuccess
-    }
+      example: eventFindAllSuccess,
+    },
   })
   findAll(
     @Query('search') search?: string,
@@ -70,16 +74,28 @@ export class EventController {
     @Query('take') take?: string,
     @Query('order-by') orderBy?: string,
   ) {
-    return this.eventService.findAll(search, Number(skip), Number(take), orderBy);
+    return this.eventService.findAll(
+      search,
+      Number(skip),
+      Number(take),
+      orderBy,
+    );
   }
 
   @Get(':id')
   @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'created',
+    status: HttpStatus.OK,
+    description: 'OK',
     schema: {
-      example: eventFindOneSuccess
-    }
+      example: eventFindOneSuccess,
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'NOT FOUND',
+    schema: {
+      example: eventFindOneFail,
+    },
   })
   findOne(@Param('id') id: string) {
     return this.eventService.findOne(id);
