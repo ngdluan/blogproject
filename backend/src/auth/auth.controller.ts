@@ -19,7 +19,7 @@ import {
 } from 'src/user/dto/users.dto';
 import { UserService } from 'src/user/user.service';
 import { AuthService, RegistrationStatus } from './auth.service';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { UserJwt } from './jwt-auth.guard';
 
 @Controller('api/auth')
 @ApiTags('Authentication User')
@@ -27,8 +27,9 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
   ) { }
+
   @Post('register')
-  @ApiOperation({ summary: 'Update actor information by username' })
+  @ApiOperation({ summary: 'Register new user' })
   @ApiBody({ type: CreateUserDto })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -56,13 +57,13 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiOperation({ summary: 'Login to get token' })
   public async login(@Body() loginUserDto: LoginUserDto): Promise<any> {
     return await this.authService.login(loginUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(UserJwt)
   @ApiSecurity('access-key')
-  @UseInterceptors(ClassSerializerInterceptor)
   @Put('update/password/:id')
   public async updatePassword(
     @Param('id') id: string,

@@ -1,4 +1,4 @@
-import { JwtAuthGuard } from './../auth/jwt-auth.guard';
+import { UserJwt } from './../auth/jwt-auth.guard';
 import {
   Controller,
   Get,
@@ -10,6 +10,7 @@ import {
   Query,
   HttpStatus,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { EventService } from './event.service';
 import { CreateEventDto, UpdateEventDto } from './dto/events.dto';
@@ -25,7 +26,7 @@ import {
 export class EventController {
   constructor(private readonly eventService: EventService) { }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(UserJwt)
   @Post()
   @ApiBearerAuth()
   @ApiResponse({
@@ -35,7 +36,11 @@ export class EventController {
       example: eventFindOneSuccess,
     },
   })
-  create(@Body() createEventDto: CreateEventDto) {
+  create(
+    @Body() createEventDto: CreateEventDto,
+    @Req() req
+  ) {
+    console.log(req.user)
     return this.eventService.create(createEventDto);
   }
 
