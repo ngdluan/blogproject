@@ -1,4 +1,3 @@
-import { UserJwt } from './../auth/jwt-auth.guard';
 import {
   Controller,
   Get,
@@ -12,33 +11,28 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { EventService } from './event.service';
-import { CreateEventDto, UpdateEventDto } from './dto/events.dto';
-import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import {
-  eventFindAllSuccess,
-  findOneFail,
-  eventFindOneSuccess,
-} from '../response-example';
+import { PostService } from './post.service';
+import { CreatePostDto, UpdatePostDto } from './dto/posts.dto';
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { postFindAllSuccess, postFindOneSuccess } from '../response-example';
+import { UserJwt } from 'src/auth/jwt-auth.guard';
 
-@Controller('api/event')
-@ApiTags('Event Router')
-export class EventController {
-  constructor(private readonly eventService: EventService) {}
+@Controller('post')
+@ApiTags('Post Router')
+export class PostController {
+  constructor(private readonly postService: PostService) {}
 
   @UseGuards(UserJwt)
   @Post()
-  @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'created',
     schema: {
-      example: eventFindOneSuccess,
+      example: postFindOneSuccess,
     },
   })
-  create(@Body() createEventDto: CreateEventDto, @Req() req) {
-    console.log(req.user);
-    return this.eventService.create(createEventDto);
+  create(@Body() createPostDto: CreatePostDto, @Req() req) {
+    return this.postService.create(createPostDto, req.user.id);
   }
 
   @Get()
@@ -70,7 +64,7 @@ export class EventController {
     status: HttpStatus.CREATED,
     description: 'Get many result',
     schema: {
-      example: eventFindAllSuccess,
+      example: postFindAllSuccess,
     },
   })
   findAll(
@@ -79,7 +73,7 @@ export class EventController {
     @Query('take') take?: string,
     @Query('order-by') orderBy?: string,
   ) {
-    return this.eventService.findAll(
+    return this.postService.findAll(
       search,
       Number(skip),
       Number(take),
@@ -89,30 +83,25 @@ export class EventController {
 
   @Get(':id')
   @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'OK',
+    status: HttpStatus.CREATED,
+    description: 'created',
     schema: {
-      example: eventFindOneSuccess,
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'NOT FOUND',
-    schema: {
-      example: findOneFail,
+      example: postFindOneSuccess,
     },
   })
   findOne(@Param('id') id: string) {
-    return this.eventService.findOne(id);
+    return this.postService.findOne(id);
   }
 
+  @UseGuards(UserJwt)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
-    return this.eventService.update(id, updateEventDto);
+  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+    return this.postService.update(id, updatePostDto);
   }
 
+  @UseGuards(UserJwt)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.eventService.remove(id);
+    return this.postService.remove(id);
   }
 }
