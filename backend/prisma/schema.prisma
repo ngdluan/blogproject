@@ -16,7 +16,7 @@ model User {
   event       Event?    @relation(fields: [eventId], references: [id])
   eventId     String?
   hash        String?
-  role        String?
+  role        String    @default("USER")
   status      String?
   verify      String?
   code        Int?
