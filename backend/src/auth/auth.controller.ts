@@ -9,8 +9,9 @@ import {
   Put,
   ClassSerializerInterceptor,
   Param,
+  HttpStatus,
 } from '@nestjs/common';
-import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import {
   CreateUserDto,
   LoginUserDto,
@@ -24,10 +25,24 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 @ApiTags('Authentication User')
 export class AuthController {
   constructor(
-    private readonly userService: UserService,
     private readonly authService: AuthService,
-  ) {}
+  ) { }
   @Post('register')
+  @ApiOperation({ summary: 'Update actor information by username' })
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'status.OK',
+    type: CreateUserDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'create email Fail',
+    // schema: { example: createUserEmailFail },
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  })
   public async register(
     @Body() createUserDto: CreateUserDto,
   ): Promise<RegistrationStatus> {
@@ -53,7 +68,7 @@ export class AuthController {
     @Param('id') id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
   ) {
-    await this.userService.updatePassword(updatePasswordDto, id);
+    await this.authService.updatePassword(updatePasswordDto, id);
     return {
       message: 'password_update_success',
     };

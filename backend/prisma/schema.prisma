@@ -9,53 +9,86 @@ datasource db {
 }
 
 model User {
-  id      String   @id @default(uuid())
-  name    String?
-  email   String?  @unique
-  Group   Group[]
-  Event   Event?   @relation(fields: [eventId], references: [id])
-  eventId String?
-  hash    String?
-  role    String?
-  status  String?
-  verify  String?
-  code    Int?
-  iAt     DateTime @default(now())
-  uAt     DateTime @updatedAt
+  id          String    @id @default(uuid())
+  name        String?
+  email       String?   @unique
+  groups      Group[]
+  event       Event?    @relation(fields: [eventId], references: [id])
+  eventId     String?
+  hash        String?
+  role        String?
+  status      String?
+  verify      String?
+  code        Int?
+  commentFrom Comment[] @relation("fromId")
+  commentTo   Comment[] @relation("toId")
+  iAt         DateTime  @default(now())
+  uAt         DateTime  @updatedAt
+  posts       Post[]
 }
 
 model Group {
   id      String   @id @default(uuid())
   name    String?
-  User    User[]
+  user    User[]
   iAt     DateTime @default(now())
   uAt     DateTime @updatedAt
-  Event   Event?   @relation(fields: [eventId], references: [id])
+  event   Event?   @relation(fields: [eventId], references: [id])
   eventId String?
 }
 
 model Event {
-  id      String    @id @default(uuid())
-  name    String
-  where   String?
-  when    DateTime?
-  link    String?
-  Address Adress[]
-  User    User[]
-  Group   Group[]
-  iAt     DateTime  @default(now())
-  uAt     DateTime  @updatedAt
+  id        String    @id @default(uuid())
+  name      String
+  where     String?
+  when      DateTime?
+  link      String?
+  addresses Address[]
+  users     User[]
+  groups    Group[]
+  iAt       DateTime  @default(now())
+  uAt       DateTime  @updatedAt
+  comments  Comment[]
 }
 
-model Adress {
+model Address {
   id      String  @id @default(uuid())
   name    String
   detail  String?
-  Event   Event[]
+  events  Event[]
   eventId String?
 }
 
 model Image {
   id   String @id @default(uuid())
   link String
+}
+
+model Comment {
+  id      String   @id @default(uuid())
+  from    User     @relation("fromId", fields: [fromId], references: [id])
+  fromId  String
+  to      User?    @relation("toId", fields: [toId], references: [id])
+  toId    String?
+  post    Post?    @relation(fields: [postId], references: [id])
+  postId  String?
+  event   Event?   @relation(fields: [eventId], references: [id])
+  eventId String?
+  like    Int?
+  iAt     DateTime @default(now())
+  uAt     DateTime @updatedAt
+}
+
+model Post {
+  id          String    @id @default(uuid())
+  title       String
+  description String
+  content     String
+  author      User      @relation(fields: [authorId], references: [id])
+  authorId    String
+  like        Int
+  read        Int
+  comments    Comment[]
+  iAt         DateTime  @default(now())
+  uAt         DateTime  @updatedAt
 }

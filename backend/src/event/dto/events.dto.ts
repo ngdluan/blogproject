@@ -20,5 +20,7 @@ export class CreateEventDto {
   when?: Date;
   @ApiProperty({ type: ConnectManyGroup })
   @Type(() => ConnectManyGroup)
-  Group?: ConnectManyGroup;
+  groups?: ConnectManyGroup;
 }
+
+export class UpdateEventDto extends CreateEventDto { }

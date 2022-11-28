@@ -1,11 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
+import { CreateEventDto, UpdateEventDto } from './dto/events.dto';
 import { PrismaService } from './../prisma.service';
-import { json } from 'stream/consumers';
 @Injectable()
 export class EventService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   async create(createEventDto: CreateEventDto) {
     return this.prisma.event.create({ data: createEventDto });
   }
@@ -36,9 +34,9 @@ export class EventService {
           where: true,
           when: true,
           link: true,
-          Address: { select: { id: true, name: true, detail: true } },
-          User: { select: { id: true, name: true, email: true } },
-          Group: { select: { id: true, name: true } },
+          addresses: { select: { id: true, name: true, detail: true } },
+          users: { select: { id: true, name: true, email: true } },
+          groups: { select: { id: true, name: true } },
         },
         skip: skip || undefined,
         take: skip || undefined,
@@ -58,20 +56,23 @@ export class EventService {
         where: true,
         when: true,
         link: true,
-        Address: { select: { id: true, name: true, detail: true } },
-        User: { select: { id: true, name: true, email: true } },
-        Group: { select: { id: true, name: true } },
+        addresses: { select: { id: true, name: true, detail: true } },
+        users: { select: { id: true, name: true, email: true } },
+        groups: { select: { id: true, name: true } },
       },
     });
     if (!user) throw new NotFoundException();
     return user;
   }
 
-  update(id: number, updateEventDto: UpdateEventDto) {
-    return `This action updates a #${id} event`;
+  update(id: string, updateEventDto: UpdateEventDto) {
+    return this.prisma.event.update({
+      where: { id }, data:
+        updateEventDto
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} event`;
+  remove(id: string) {
+    return this.prisma.event.delete({ where: { id } });
   }
 }
