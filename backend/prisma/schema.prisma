@@ -92,8 +92,8 @@ model Post {
   content     String
   author      User       @relation(fields: [authorId], references: [id])
   authorId    String
-  like        Int
-  read        Int
+  like        Int        @default(0)
+  read        Int        @default(0)
   comments    Comment[]
   category    Category[]
   iAt         DateTime   @default(now())

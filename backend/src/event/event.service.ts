@@ -3,17 +3,12 @@ import { CreateEventDto, UpdateEventDto } from './dto/events.dto';
 import { PrismaService } from './../prisma.service';
 @Injectable()
 export class EventService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
   async create(createEventDto: CreateEventDto) {
     return this.prisma.event.create({ data: createEventDto });
   }
 
-  async findAll(
-    search?: string,
-    skip?: number,
-    take?: number,
-    orderBy: string = '{}',
-  ) {
+  async findAll(search?: string, skip?: number, take?: number, orderBy = '{}') {
     const where = { OR: [] };
     if (search) {
       where.OR = [
@@ -67,8 +62,8 @@ export class EventService {
 
   update(id: string, updateEventDto: UpdateEventDto) {
     return this.prisma.event.update({
-      where: { id }, data:
-        updateEventDto
+      where: { id },
+      data: updateEventDto,
     });
   }
 
