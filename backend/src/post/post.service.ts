@@ -1,12 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { UserInfo } from './../base/interface';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreatePostDto, UpdatePostDto } from './dto/posts.dto';
 import { PrismaService } from '../prisma.service';
+import { Role } from 'src/base/const';
 
 @Injectable()
 export class PostService {
   constructor(private prisma: PrismaService) {}
-  async create(createEventDto: CreatePostDto, authorId: string) {
-    return this.prisma.post.create({ data: { ...createEventDto, authorId } });
+  async create(createEventDto: CreatePostDto, author: UserInfo) {
+    return this.prisma.post.create({
+      data: { ...createEventDto, authorId: author.id },
+    });
   }
 
   async findAll(search?: string, skip?: number, take?: number, orderBy = '{}') {
@@ -35,7 +43,7 @@ export class PostService {
           },
         },
         skip: skip || undefined,
-        take: skip || undefined,
+        take: take || undefined,
         orderBy: JSON.parse(orderBy),
       }),
     ]);
@@ -44,41 +52,40 @@ export class PostService {
   }
 
   async findOne(id: string) {
-    const [_, postUpdated] = await this.prisma.$transaction([
-      this.prisma.post.findFirst({
-        where: { id },
-        select: {
-          id: true,
-          title: true,
-          description: true,
-          content: true,
-          like: true,
-          read: true,
-          author: {
-            select: { id: true, name: true, email: true },
-          },
+    const postUpdated = await this.prisma.post.update({
+      where: { id },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        content: true,
+        like: true,
+        read: true,
+        author: {
+          select: { id: true, name: true, email: true },
         },
-      }),
-      this.prisma.post.update({
-        where: { id },
-        select: {
-          id: true,
-          title: true,
-          description: true,
-          content: true,
-          like: true,
-          read: true,
-          author: {
-            select: { id: true, name: true, email: true },
-          },
-        },
-        data: { read: { increment: 1 } },
-      }),
-    ]);
+      },
+      data: { read: { increment: 1 } },
+    });
+    if (!postUpdated) throw new NotFoundException();
     return postUpdated;
   }
 
-  async update(id: string, updatePostDto: UpdatePostDto) {
+  async getAuthorIdOfPost(id: string) {
+    const currentPost = await this.prisma.post.findFirst({
+      where: { id },
+      select: {
+        authorId: true,
+      },
+    });
+    if (!currentPost) throw new NotFoundException();
+    return currentPost.authorId;
+  }
+
+  async update(id: string, updatePostDto: UpdatePostDto, author: UserInfo) {
+    if ((await this.getAuthorIdOfPost(id)) !== author.id) {
+      throw new ForbiddenException();
+    }
     const [postUpdated] = await this.prisma.$transaction([
       this.prisma.post.update({
         where: { id },
@@ -88,13 +95,19 @@ export class PostService {
     return postUpdated;
   }
 
-  async remove(id: string) {
-    const [postDeteled] = await this.prisma.$transaction([
+  async remove(id: string, author: UserInfo) {
+    if (
+      author.role === Role.USER &&
+      (await this.getAuthorIdOfPost(id)) !== author.id
+    ) {
+      throw new ForbiddenException();
+    }
+    const [postDeleted] = await this.prisma.$transaction([
       this.prisma.post.delete({
         where: { id },
       }),
     ]);
 
-    return postDeteled;
+    return postDeleted;
   }
 }

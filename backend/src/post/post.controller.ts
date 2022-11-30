@@ -32,7 +32,7 @@ export class PostController {
     },
   })
   create(@Body() createPostDto: CreatePostDto, @Req() req) {
-    return this.postService.create(createPostDto, req.user.id);
+    return this.postService.create(createPostDto, req.user);
   }
 
   @Get()
@@ -95,13 +95,17 @@ export class PostController {
 
   @UseGuards(UserJwt)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postService.update(id, updatePostDto);
+  update(
+    @Param('id') id: string,
+    @Body() updatePostDto: UpdatePostDto,
+    @Req() req,
+  ) {
+    return this.postService.update(id, updatePostDto, req.user);
   }
 
   @UseGuards(UserJwt)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postService.remove(id);
+  remove(@Param('id') id: string, @Req() req) {
+    return this.postService.remove(id, req.user);
   }
 }
