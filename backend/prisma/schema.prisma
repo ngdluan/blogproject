@@ -82,6 +82,7 @@ model Comment {
   toId    String?
   post    Post?    @relation(fields: [postId], references: [id])
   postId  String?
+  content String?
   event   Event?   @relation(fields: [eventId], references: [id])
   eventId String?
   like    Int?
