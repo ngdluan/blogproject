@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query } from '@nestjs/common';
+import { skip, take } from 'rxjs';
 import { UserJwt } from 'src/auth/jwt-auth.guard';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -17,27 +18,37 @@ export class CommentController {
   }
 
   @Get('post/:id')
-  findAllCommentFromPost() {
-    return this.commentService.findAll();
+  findAllCommentFromPost(
+    @Param(':id') id: string,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+  ) {
+    return this.commentService.findAll(id, null, Number(skip), Number(take));
   }
 
   @Get('user/:id')
-  findAllCommentFromUser() {
-    return this.commentService.findAll();
+  findAllCommentFromUser(
+    @Param(':id') id: string,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+  ) {
+    return this.commentService.findAll(null, id, Number(skip), Number(take));
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.commentService.findOne(+id);
+    return this.commentService.findOne(id);
   }
 
+  @UseGuards(UserJwt)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentService.update(+id, updateCommentDto);
+  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto, @Req() rep) {
+    return this.commentService.update(id, updateCommentDto, rep.user.id);
   }
 
+  @UseGuards(UserJwt)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.commentService.remove(+id);
+  remove(@Param('id') id: string, @Req() rep) {
+    return this.commentService.remove(id, rep.user);
   }
 }

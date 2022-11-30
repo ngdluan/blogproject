@@ -34,7 +34,7 @@ export class EventService {
           groups: { select: { id: true, name: true } },
         },
         skip: skip || undefined,
-        take: skip || undefined,
+        take: take || undefined,
         orderBy: JSON.parse(orderBy),
       }),
     ]);

@@ -59,7 +59,7 @@ export class CommentService {
   }
 
  async remove(id: string, author: UserInfo) {
-  if author.role === Role.USER && (await this.getAuthorIdOfPost(id) !== author.id) {
+  if (author.role === Role.USER && (await this.getAuthorIdOfPost(id) !== author.id)) {
     throw new ForbiddenException();
   }
     

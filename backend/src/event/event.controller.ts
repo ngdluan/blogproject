@@ -76,6 +76,7 @@ export class EventController {
       example: eventFindAllSuccess,
     },
   })
+  
   findAll(
     @Query('search') search?: string,
     @Query('skip') skip?: string,
