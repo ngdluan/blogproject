@@ -11,7 +11,6 @@ async function bootstrap() {
     .setTitle('Vmo blog')
     .setDescription('The powerfull vmo blog')
     .setVersion('0.1')
-    .addTag('hahah')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);

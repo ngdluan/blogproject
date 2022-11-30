@@ -9,22 +9,30 @@ datasource db {
 }
 
 model User {
-  id          String    @id @default(uuid())
-  name        String?
-  email       String?   @unique
-  groups      Group[]
-  event       Event?    @relation(fields: [eventId], references: [id])
-  eventId     String?
-  hash        String?
-  role        String    @default("USER")
-  status      String?
-  verify      String?
-  code        Int?
-  commentFrom Comment[] @relation("fromId")
-  commentTo   Comment[] @relation("toId")
-  iAt         DateTime  @default(now())
-  uAt         DateTime  @updatedAt
-  posts       Post[]
+  id              String         @id @default(uuid())
+  name            String?
+  email           String?        @unique
+  groups          Group[]
+  hash            String?
+  event           Event[]
+  role            String         @default("USER")
+  status          String?
+  verify          String?
+  code            Int?
+  commentFrom     Comment[]      @relation("fromId")
+  commentTo       Comment[]      @relation("toId")
+  iAt             DateTime       @default(now())
+  uAt             DateTime       @updatedAt
+  posts           Post[]
+  UserJoinEvent   UserJoinEvent? @relation(fields: [userJoinEventId], references: [id])
+  userJoinEventId String?
+}
+
+model UserJoinEvent {
+  id      String  @id @default(uuid())
+  event   Event?  @relation(fields: [eventId], references: [id])
+  eventId String?
+  user    User[]
 }
 
 model Group {
@@ -38,17 +46,19 @@ model Group {
 }
 
 model Event {
-  id        String    @id @default(uuid())
-  name      String
-  where     String?
-  when      DateTime?
-  link      String?
-  addresses Address[]
-  users     User[]
-  groups    Group[]
-  iAt       DateTime  @default(now())
-  uAt       DateTime  @updatedAt
-  comments  Comment[]
+  id             String          @id @default(uuid())
+  name           String
+  where          String?
+  when           DateTime?
+  link           String?
+  addresses      Address[]
+  groups         Group[]
+  iAt            DateTime        @default(now())
+  uAt            DateTime        @updatedAt
+  comments       Comment[]
+  userId         String?
+  users          User[]
+  userJoinEvents UserJoinEvent[]
 }
 
 model Address {
