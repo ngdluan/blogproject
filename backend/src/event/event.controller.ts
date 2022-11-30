@@ -17,14 +17,14 @@ import { CreateEventDto, UpdateEventDto } from './dto/events.dto';
 import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   eventFindAllSuccess,
-  findOneFail,
+  eventFindOneFail,
   eventFindOneSuccess,
-} from '../response-example';
+} from './response-example';
 
 @Controller('api/event')
 @ApiTags('Event Router')
 export class EventController {
-  constructor(private readonly eventService: EventService) {}
+  constructor(private readonly eventService: EventService) { }
 
   @UseGuards(UserJwt)
   @Post()
@@ -36,8 +36,11 @@ export class EventController {
       example: eventFindOneSuccess,
     },
   })
-  create(@Body() createEventDto: CreateEventDto, @Req() req) {
-    console.log(req.user);
+  create(
+    @Body() createEventDto: CreateEventDto,
+    @Req() req
+  ) {
+    console.log(req.user.id)
     return this.eventService.create(createEventDto);
   }
 
@@ -73,6 +76,7 @@ export class EventController {
       example: eventFindAllSuccess,
     },
   })
+  
   findAll(
     @Query('search') search?: string,
     @Query('skip') skip?: string,
@@ -99,7 +103,7 @@ export class EventController {
     status: HttpStatus.NOT_FOUND,
     description: 'NOT FOUND',
     schema: {
-      example: findOneFail,
+      example: eventFindOneFail,
     },
   })
   findOne(@Param('id') id: string) {
